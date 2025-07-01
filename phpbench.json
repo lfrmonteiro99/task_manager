@@ -1,0 +1,19 @@
+{
+    "runner.bootstrap": "vendor/autoload.php",
+    "runner.path": "benchmarks",
+    "runner.progress": "dots",
+    "core.profiles": {
+        "default": {
+            "runner.iterations": [10],
+            "runner.revs": [1000]
+        },
+        "quick": {
+            "runner.iterations": [3],
+            "runner.revs": [100]
+        },
+        "thorough": {
+            "runner.iterations": [20],
+            "runner.revs": [10000]
+        }
+    }
+}

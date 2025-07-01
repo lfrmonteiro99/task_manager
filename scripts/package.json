@@ -1,0 +1,19 @@
+{
+  "name": "task-manager-load-testing",
+  "version": "1.0.0",
+  "description": "Load testing scripts for Task Manager API",
+  "scripts": {
+    "load-test": "node load-test.js",
+    "load-test-light": "CONCURRENT_USERS=10 TEST_DURATION=15000 node load-test.js",
+    "load-test-heavy": "CONCURRENT_USERS=100 TEST_DURATION=120000 node load-test.js",
+    "monitor": "node performance-monitor.js",
+    "monitor-dev": "MONITORING_INTERVAL=30000 node performance-monitor.js",
+    "monitor-production": "MONITORING_INTERVAL=60000 RESPONSE_TIME_THRESHOLD=200 node performance-monitor.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "autocannon": "^7.12.0"
+  }
+}

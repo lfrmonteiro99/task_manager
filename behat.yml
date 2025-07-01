@@ -1,0 +1,35 @@
+default:
+  suites:
+    api:
+      paths:
+        - features/api
+      contexts:
+        - BehatContext\ApiContext
+        - BehatContext\TaskContext
+        - BehatContext\SecurityContext
+    
+    task_management:
+      paths:
+        - features/task_management
+      contexts:
+        - BehatContext\TaskContext
+        - BehatContext\ApiContext
+        
+    security:
+      paths:
+        - features/security
+      contexts:
+        - BehatContext\SecurityContext
+        - BehatContext\ApiContext
+
+  extensions:
+    
+  formatters:
+    pretty:
+      verbose: true
+      colors: true
+    progress: ~
+
+  gherkin:
+    filters:
+      tags: "~@skip"

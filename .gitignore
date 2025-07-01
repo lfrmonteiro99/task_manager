@@ -1,0 +1,45 @@
+# Dependencies
+/vendor/
+/node_modules/
+
+# Environment files
+.env
+.env.test
+.env.local
+.env.production
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+/logs/
+*.log
+
+# Test coverage
+/coverage/
+.phpunit.cache/
+
+# Build artifacts
+/build/
+/dist/
+
+# Temporary files
+/tmp/
+*.tmp
+
+# API Keys and Secrets (extra safety)
+**/api-keys.txt
+**/secrets.txt
+**/*key*.txt
+**/*secret*.txt
+
+# Docker volumes
+/mysql_data/
+/redis_data/

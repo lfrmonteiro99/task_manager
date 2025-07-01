@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.0/phpunit.xsd"
+         bootstrap="tests/bootstrap.php"
+         colors="true"
+         testdox="true"
+         cacheDirectory=".phpunit.cache"
+         executionOrder="depends,defects"
+         beStrictAboutOutputDuringTests="true"
+         failOnRisky="true"
+         failOnWarning="true">
+    <testsuites>
+        <testsuite name="All Tests">
+            <directory>tests</directory>
+        </testsuite>
+        <testsuite name="Unit Tests">
+            <directory>tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Integration Tests">
+            <directory>tests/Integration</directory>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory>app/Models</directory>
+            <directory>app/Controllers</directory>
+            <directory>app/Services</directory>
+            <directory>app/Repositories</directory>
+            <directory>app/Middleware</directory>
+            <directory>app/Container</directory>
+            <directory>app/Config</directory>
+            <directory>app/Context</directory>
+            <directory>app/Cache</directory>
+            <directory>app/Bootstrap</directory>
+            <file>app/Router.php</file>
+        </include>
+        <exclude>
+            <file>index.php</file>
+            <directory>config</directory>
+            <directory>vendor</directory>
+        </exclude>
+    </source>
+    <php>
+        <env name="APP_ENV" value="testing"/>
+        <env name="TEST_API_BASE_URL" value="http://localhost:8080"/>
+        <env name="DB_HOST" value="localhost"/>
+        <env name="DB_NAME" value="task_manager_test"/>
+        <env name="DB_USER" value="test_user"/>
+        <env name="DB_PASS" value="test_pass"/>
+        <env name="JWT_SECRET" value="test_jwt_secret_key_that_is_at_least_32_characters_long_for_testing"/>
+        <env name="REDIS_HOST" value="localhost"/>
+        <env name="REDIS_PORT" value="6379"/>
+        <env name="REDIS_DB" value="15"/>
+    </php>
+</phpunit>

@@ -1,0 +1,20 @@
+services:
+  app:
+    environment:
+      - DB_HOST=db_test
+      - DB_NAME=task_manager_test
+      - DB_USER=taskuser
+      - DB_PASS=taskpass
+      - APP_ENV=test
+      - TESTING=true
+      - CACHE_TYPE=null
+      - API_KEY=task-manager-api-key-2025
+      - API_KEYS=dev-key-123,test-key-456,admin-key-789,test-secure-key-1735178063
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_CACHE_DB=1
+      - RATE_LIMIT_REQUESTS=100
+      - RATE_LIMIT_WINDOW=3600
+      - LOG_PATH=/tmp/task-manager-logs
+      - LOG_LEVEL=info
+      - TEST_API_BASE_URL=http://app
