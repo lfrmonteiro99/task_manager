@@ -247,6 +247,7 @@ curl -X POST http://localhost:8080/task/create \
 | `GET` | `/task/list` | List user's tasks (supports pagination) | Yes |
 | `POST` | `/task/create` | Create new task | Yes |
 | `PUT` | `/task/update/{id}` | Update task | Yes |
+| `DELETE` | `/task/delete/{id}` | Delete task | Yes |
 | `POST` | `/task/done` | Mark task as completed | Yes |
 | `GET` | `/task/overdue` | Get overdue tasks | Yes |
 | `GET` | `/task/statistics` | Get task statistics | Yes |
