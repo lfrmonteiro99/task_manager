@@ -10,7 +10,7 @@ use App\Cache\TokenValidationCache;
 use DateTime;
 use Exception;
 
-class JwtService
+class JwtService implements JwtServiceInterface
 {
     private string $secretKey;
     private string $algorithm;

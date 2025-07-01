@@ -203,7 +203,10 @@ class DIContainer
 
         // Services
         $this->singleton(\App\Services\JwtService::class, \App\Services\JwtService::class);
+        $this->bind(\App\Services\JwtServiceInterface::class, \App\Services\JwtService::class);
         $this->bind(\App\Services\TaskServiceInterface::class, \App\Services\TaskService::class);
+        $this->bind(\App\Services\TaskRetryServiceInterface::class, \App\Services\TaskRetryService::class);
+        $this->bind(\App\Services\PaginationServiceInterface::class, \App\Services\PaginationService::class);
 
         // Repositories
         $this->bind(\App\Repositories\TaskRepositoryInterface::class, \App\Repositories\TaskRepository::class);

@@ -344,7 +344,7 @@ class PerformanceMonitor {
         console.log(` Total requests: ${totalRequests}`);
         console.log(` Total errors: ${totalErrors}`);
         console.log(` Overall average response time: ${avgResponseTime.toFixed(2)}ms`);
-        console.log(`📉 Overall error rate: ${errorRate.toFixed(2)}%`);
+        console.log(` Overall error rate: ${errorRate.toFixed(2)}%`);
         
         console.log('\n Monitoring session completed successfully.');
     }

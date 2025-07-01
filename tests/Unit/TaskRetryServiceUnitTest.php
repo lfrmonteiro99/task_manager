@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 use App\Services\TaskRetryService;
+use App\Services\TaskRetryServiceInterface;
 use App\Utils\Logger;
 
 /**
@@ -11,7 +12,7 @@ use App\Utils\Logger;
  */
 class TaskRetryServiceUnitTest extends TestCase
 {
-    private TaskRetryService $retryService;
+    private TaskRetryServiceInterface $retryService;
     private Logger $mockLogger;
 
     protected function setUp(): void

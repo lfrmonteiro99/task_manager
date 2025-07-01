@@ -65,16 +65,51 @@ git clone <repository-url>
 cd task_manager
 ```
 
-### **2. Start with Docker (Recommended)**
+### **2. Environment Configuration**
+
+**IMPORTANT**: You must configure environment variables before starting containers.
+
+#### **Production/Development Environment**
 ```bash
-# Start all services
+# Copy the example environment file
+cp .env.example .env
+
+# Edit .env with your configuration
+# REQUIRED: Set secure JWT_SECRET, database credentials
+```
+
+**Required Environment Variables in `.env`:**
+- `JWT_SECRET` - **MUST be secure random string (32+ characters)**
+- `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS`, `DB_ROOT_PASSWORD` - Database connection
+- `REDIS_HOST`, `REDIS_PORT` - Redis connection
+- `API_KEY` - Your API authentication key
+
+**Optional Docker Configuration:**
+- `APP_PORT` - Application port (default: 8080)
+- `DB_PORT`, `DB_TEST_PORT` - Database ports (default: 3306, 3307)
+- `LOG_PATH` - Log file path (default: /tmp/task-manager-logs)
+
+#### **Test Environment** 
+```bash
+# Copy test environment file
+cp .env.test.example .env.test
+
+# Edit for your test setup (usually no changes needed for Docker)
+```
+
+### **3. Start with Docker (Recommended)**
+```bash
+# Option 1: Using Make (recommended)
+make setup
+
+# Option 2: Using Docker Compose directly
 docker-compose up -d
 
 # Verify services are healthy
 docker-compose ps
 ```
 
-### **3. Verify Installation**
+### **4. Verify Installation**
 ```bash
 # Run complete test suite
 ./run-tests.sh
@@ -223,7 +258,45 @@ curl -X POST http://localhost:8080/task/create \
 
 ## Development
 
-### **Available Commands**
+### **Make Commands (Recommended)**
+```bash
+# Quick setup for new developers
+make setup              # Build containers and start services
+
+# Container management
+make build              # Build all containers
+make up                 # Start services
+make down               # Stop services
+make restart            # Restart all services
+make rebuild            # Full rebuild (no cache) and restart
+
+# Development workflow
+make logs               # View recent application logs
+make test               # Run complete test suite
+```
+
+### **Composer Commands**
+```bash
+# Code quality and analysis
+composer lint           # Check PSR-12 code style compliance
+composer format         # Auto-fix PSR-12 code style violations
+composer analyze        # Run PHPStan static analysis (Level 8)
+
+# Testing and benchmarking
+composer test           # Run PHPUnit tests
+composer test-coverage  # Run tests with coverage report
+composer test-bdd       # Run Behat BDD tests
+composer test-all       # Run all test types
+
+# Performance benchmarking
+composer bench          # Run all benchmarks
+composer bench-quick    # Quick benchmark (fewer iterations)
+composer bench-thorough # Thorough benchmark (more iterations)
+composer bench-cache    # Cache performance benchmarks
+composer bench-db       # Database performance benchmarks
+```
+
+### **Docker Compose Commands**
 ```bash
 # Start services
 docker-compose up -d
@@ -234,14 +307,44 @@ docker-compose -f docker-compose.dev.yml up -d --build
 # View logs
 docker-compose logs -f app
 
-# Run tests
-./run-tests.sh
+# Run tests inside container
+docker-compose exec app ./run-tests.sh
+
+# Access container shell
+docker-compose exec app bash
 
 # Stop services
 docker-compose down
 
 # Rebuild containers
 docker-compose build --no-cache
+```
+
+### **Development Workflow**
+```bash
+# 1. Start development environment
+make setup
+
+# 2. Make code changes...
+
+# 3. Check code quality
+composer lint
+composer analyze
+
+# 4. Auto-fix style issues
+composer format
+
+# 5. Run tests
+make test
+# or specific test types:
+./run-tests.sh --phpunit
+./run-tests.sh --behat
+
+# 6. Check performance
+composer bench-quick
+
+# 7. View logs if needed
+make logs
 ```
 
 ### **Debugging with Xdebug**
@@ -564,15 +667,20 @@ The `/health` endpoint provides comprehensive monitoring:
 ### **Environment Variables**
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `JWT_SECRET` | - | Secret key for JWT token signing |
+| `JWT_SECRET` | - | Secret key for JWT token signing (REQUIRED) |
 | `JWT_EXPIRATION` | `3600` | Access token expiration (seconds) |
-| `DB_HOST` | `db` | Database hostname |
+| `DB_HOST` | `localhost` | Database hostname |
+| `DB_PORT` | `3306` | Database port |
 | `DB_NAME` | `task_manager` | Database name |
-| `REDIS_HOST` | `redis` | Redis hostname |
+| `DB_USER` | - | Database username (REQUIRED) |
+| `DB_PASS` | - | Database password (REQUIRED) |
+| `DB_ROOT_PASSWORD` | - | Database root password (REQUIRED) |
+| `REDIS_HOST` | `localhost` | Redis hostname |
 | `REDIS_PORT` | `6379` | Redis port |
 | `CACHE_TYPE` | `redis` | Cache implementation |
 | `RATE_LIMIT_REQUESTS` | `100` | Rate limit max requests |
 | `RATE_LIMIT_WINDOW` | `3600` | Rate limit window (seconds) |
+| `APP_PORT` | `8080` | Application port for Docker |
 | `LOG_LEVEL` | `info` | Logging level |
 
 ### **Database Schema**
@@ -599,14 +707,18 @@ The application uses an optimized MySQL schema with:
 ## Production Deployment
 
 ### **Production Checklist**
-- [ ] Configure secure JWT secret keys
-- [ ] Set up proper rate limiting thresholds
-- [ ] Enable log rotation and monitoring
-- [ ] Configure HTTPS/TLS termination
-- [ ] Set up reverse proxy (nginx/Apache)
-- [ ] Configure monitoring and alerting
-- [ ] Implement database backup strategy
-- [ ] Review and validate security headers
+- [ ] **Environment**: Copy `.env.example` to `.env` and configure all variables
+- [ ] **Security**: Generate secure JWT secret (32+ characters random string)
+- [ ] **Database**: Configure production database credentials
+- [ ] **Redis**: Set up Redis server and configure connection
+- [ ] **Rate Limiting**: Set appropriate rate limiting thresholds
+- [ ] **Logs**: Enable log rotation and monitoring
+- [ ] **HTTPS**: Configure HTTPS/TLS termination
+- [ ] **Proxy**: Set up reverse proxy (nginx/Apache) 
+- [ ] **Monitoring**: Configure monitoring and alerting
+- [ ] **Backup**: Implement database backup strategy
+- [ ] **Security**: Review and validate security headers
+- [ ] **Testing**: Run `composer analyze` and `composer lint` before deployment
 
 ### **Scaling Recommendations**
 - **Horizontal Scaling** - Multiple app containers behind load balancer
@@ -614,16 +726,82 @@ The application uses an optimized MySQL schema with:
 - **Cache Scaling** - Redis cluster for high availability
 - **Monitoring** - Centralized logging and metrics collection
 
+## Troubleshooting
+
+### **Common Issues**
+
+#### **Environment Setup**
+```bash
+# Missing .env file
+cp .env.example .env
+# Edit .env with your configuration
+
+# Missing .env.test file  
+cp .env.test.example .env.test
+```
+
+#### **Docker Issues**
+```bash
+# Containers not starting
+docker-compose down
+docker-compose build --no-cache
+docker-compose up -d
+
+# Database connection errors
+# Check .env file for correct DB_* variables
+# Ensure database container is running: docker-compose ps
+
+# Permission issues
+docker-compose exec app chown -R www-data:www-data /var/www/html
+```
+
+#### **Code Quality Issues**
+```bash
+# PSR-12 violations
+composer format    # Auto-fix style issues
+composer lint      # Check remaining issues
+
+# PHPStan errors
+composer analyze   # View static analysis errors
+# Fix code issues and re-run
+
+# Test failures
+./run-tests.sh --phpunit    # Run only PHPUnit tests
+./run-tests.sh --behat      # Run only Behat tests
+make logs                   # Check application logs
+```
+
+#### **Performance Issues**
+```bash
+# Check cache status
+curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:8080/health
+
+# Clear Redis cache
+docker-compose exec redis redis-cli FLUSHALL
+
+# Check database performance
+composer bench-db
+```
+
+### **Getting Help**
+- Check logs: `make logs` or `./view-logs.sh`
+- Run health check: `curl http://localhost:8080/health`
+- View container status: `docker-compose ps`
+- Access container: `docker-compose exec app bash`
+
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Run tests (`./run-tests.sh`)
-4. Ensure PHPStan Level 8 compliance
-5. Follow PSR-12 coding standards
-6. Commit changes (`git commit -m 'Add amazing feature'`)
-7. Push to branch (`git push origin feature/amazing-feature`)
-8. Open a Pull Request
+3. **Set up environment**: `cp .env.example .env` and configure
+4. **Start development**: `make setup`
+5. **Code quality**: Run `composer lint` and `composer analyze`
+6. **Run tests**: `./run-tests.sh`
+7. **Auto-fix style**: `composer format` 
+8. Follow PSR-12 coding standards
+9. Commit changes (`git commit -m 'Add amazing feature'`)
+10. Push to branch (`git push origin feature/amazing-feature`)
+11. Open a Pull Request
 
 ## License
 
@@ -635,7 +813,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Xdebug Debugging** - See `docs/XDEBUG.md` for comprehensive debugging guide
 - **Load Testing Scripts** - See `scripts/` directory for Node.js load testing tools
 - **Performance Monitoring** - Real-time monitoring scripts with configurable thresholds
-- **Testing Guide** - Comprehensive testing instructions with 85 automated tests
+- **Testing Guide** - Comprehensive testing instructions with 140 automated tests
+- **Code Quality** - Use `composer lint`, `composer format`, `composer analyze`
+- **Make Commands** - Use `make help` to see all available commands
+- **Benchmarking** - Use `composer bench*` commands for performance testing
 
 ---
 

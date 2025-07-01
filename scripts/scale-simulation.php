@@ -32,9 +32,9 @@ class ScaleSimulation
         
         // Test at different scales
         $scales = [
-            ['name' => 'Small Scale', 'records' => 1000, 'color' => '🟢'],
-            ['name' => 'Medium Scale', 'records' => 10000, 'color' => '🟡'],
-            ['name' => 'Large Scale', 'records' => 50000, 'color' => '🟠'],
+            ['name' => 'Small Scale', 'records' => 1000, 'color' => ''],
+            ['name' => 'Medium Scale', 'records' => 10000, 'color' => ''],
+            ['name' => 'Large Scale', 'records' => 50000, 'color' => ''],
         ];
         
         $results = [];
@@ -287,9 +287,9 @@ class ScaleSimulation
         $updateScaling = ($lastResult['update_avg_ms'] / $firstResult['update_avg_ms']) - 1;
         $recordScaling = ($lastResult['actual_records'] / $firstResult['actual_records']) - 1;
         
-        echo "🔸 Record count increased: " . number_format($recordScaling * 100, 0) . "%\n";
-        echo "🔸 INSERT time increased: " . number_format($insertScaling * 100, 1) . "%\n";
-        echo "🔸 UPDATE time increased: " . number_format($updateScaling * 100, 1) . "%\n\n";
+        echo " Record count increased: " . number_format($recordScaling * 100, 0) . "%\n";
+        echo " INSERT time increased: " . number_format($insertScaling * 100, 1) . "%\n";
+        echo " UPDATE time increased: " . number_format($updateScaling * 100, 1) . "%\n\n";
         
         if ($insertScaling < 0.5 && $updateScaling < 0.5) {
             echo " EXCELLENT: Operations scale sub-linearly with data size\n";

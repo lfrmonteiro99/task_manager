@@ -8,6 +8,10 @@ use App\Services\TaskService;
 use App\Repositories\TaskRepository;
 use App\Models\Database;
 use App\Cache\CacheFactory;
+use App\Cache\TaskCacheManager;
+use App\Services\TaskRetryService;
+use App\Services\PaginationService;
+use App\Views\TaskView;
 use PhpBench\Attributes as Bench;
 
 /**
@@ -22,15 +26,14 @@ class TaskServiceBench
     public function __construct()
     {
         // Setup test environment
-        $database = new Database(
-            host: getenv('DB_HOST') ?: 'db',
-            dbname: getenv('DB_NAME') ?: 'task_manager',
-            username: getenv('DB_USER') ?: 'taskuser',
-            password: getenv('DB_PASS') ?: 'taskpass'
-        );
+        $database = new Database();
         $cache = CacheFactory::create();
-        $taskRepository = new TaskRepository($database, $cache);
-        $this->taskService = new TaskService($taskRepository);
+        $taskCacheManager = new TaskCacheManager($cache);
+        $retryService = new TaskRetryService();
+        $taskRepository = new TaskRepository($database, $taskCacheManager, $retryService);
+        $paginationService = new PaginationService();
+        $taskView = new TaskView();
+        $this->taskService = new TaskService($taskRepository, $taskCacheManager, $paginationService, $taskView);
         
         $this->testTaskData = [
             'title' => 'Benchmark Test Task',
@@ -43,8 +46,8 @@ class TaskServiceBench
     /**
      * Benchmark task creation performance
      */
-    #[Bench\Revs(1000)]
-    #[Bench\Iterations(5)]
+    #[Bench\Revs(10)]
+    #[Bench\Iterations(3)]
     #[Bench\BeforeMethods(['setUp'])]
     #[Bench\AfterMethods(['tearDown'])]
     public function benchCreateTask(): void
@@ -55,8 +58,8 @@ class TaskServiceBench
     /**
      * Benchmark task listing performance
      */
-    #[Bench\Revs(500)]
-    #[Bench\Iterations(5)]
+    #[Bench\Revs(5)]
+    #[Bench\Iterations(3)]
     #[Bench\BeforeMethods(['setUp', 'createTestTasks'])]
     #[Bench\AfterMethods(['tearDown'])]
     public function benchListTasks(): void
@@ -67,8 +70,8 @@ class TaskServiceBench
     /**
      * Benchmark task statistics calculation
      */
-    #[Bench\Revs(200)]
-    #[Bench\Iterations(5)]
+    #[Bench\Revs(5)]
+    #[Bench\Iterations(3)]
     #[Bench\BeforeMethods(['setUp', 'createTestTasks'])]
     #[Bench\AfterMethods(['tearDown'])]
     public function benchTaskStatistics(): void
@@ -79,8 +82,8 @@ class TaskServiceBench
     /**
      * Benchmark overdue task filtering
      */
-    #[Bench\Revs(300)]
-    #[Bench\Iterations(5)]
+    #[Bench\Revs(5)]
+    #[Bench\Iterations(3)]
     #[Bench\BeforeMethods(['setUp', 'createTestTasks'])]
     #[Bench\AfterMethods(['tearDown'])]
     public function benchOverdueTasks(): void

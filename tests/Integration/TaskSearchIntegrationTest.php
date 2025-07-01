@@ -9,6 +9,7 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 use App\Models\TestDatabase;
 use App\Services\TaskService;
 use App\Services\PaginationService;
+use App\Services\PaginationServiceInterface;
 use App\Repositories\TaskRepository;
 use App\Controllers\TaskController;
 use App\Cache\TaskCacheManager;

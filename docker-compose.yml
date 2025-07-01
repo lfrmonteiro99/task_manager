@@ -3,12 +3,12 @@ services:
     image: mysql:8.0
     container_name: task_manager_db
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: task_manager
-      MYSQL_USER: taskuser
-      MYSQL_PASSWORD: taskpass
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${DB_NAME:-task_manager}
+      MYSQL_USER: ${DB_USER:-taskuser}
+      MYSQL_PASSWORD: ${DB_PASS:-taskpass}
     ports:
-      - "3306:3306"
+      - "${DB_PORT:-3306}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./sql/init.sql:/docker-entrypoint-initdb.d/01-init.sql
@@ -22,12 +22,12 @@ services:
     image: mysql:8.0
     container_name: task_manager_db_test
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: task_manager_test
-      MYSQL_USER: taskuser
-      MYSQL_PASSWORD: taskpass
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${DB_TEST_NAME:-task_manager_test}
+      MYSQL_USER: ${DB_USER:-taskuser}
+      MYSQL_PASSWORD: ${DB_PASS:-taskpass}
     ports:
-      - "3307:3306"
+      - "${DB_TEST_PORT:-3307}:3306"
     volumes:
       - mysql_test_data:/var/lib/mysql
       - ./sql/init-test.sql:/docker-entrypoint-initdb.d/01-init-test.sql
@@ -41,7 +41,7 @@ services:
     image: redis:7-alpine
     container_name: task_manager_redis
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
     command: redis-server --appendonly yes
@@ -54,7 +54,7 @@ services:
     build: .
     container_name: task_manager_app
     ports:
-      - "8080:80"
+      - "${APP_PORT:-8080}:80"
     volumes:
       - .:/var/www/html
       - ./logs:/tmp/task-manager-logs
@@ -67,30 +67,30 @@ services:
       redis:
         condition: service_healthy
     environment:
-      - DB_HOST=db
-      - DB_NAME=task_manager
-      - DB_USER=taskuser
-      - DB_PASS=taskpass
-      - DB_TEST_HOST=db_test
-      - DB_TEST_NAME=task_manager_test
-      - APP_ENV=development
-      - API_KEY=task-manager-api-key-2025
-      - API_KEYS=dev-key-123,test-key-456,admin-key-789,test-secure-key-1735178063
-      - REDIS_HOST=redis
-      - TEST_API_BASE_URL=http://app
-      - REDIS_PORT=6379
-      - REDIS_CACHE_DB=1
-      - CACHE_TYPE=redis
-      - RATE_LIMIT_REQUESTS=100
-      - RATE_LIMIT_WINDOW=3600
-      - LOG_PATH=/tmp/task-manager-logs
-      - LOG_LEVEL=info
-      - JWT_SECRET=task-manager-super-secret-key-production-2025
-      - JWT_EXPIRATION=3600
+      - DB_HOST=${DB_HOST:-db}
+      - DB_NAME=${DB_NAME:-task_manager}
+      - DB_USER=${DB_USER:-taskuser}
+      - DB_PASS=${DB_PASS:-taskpass}
+      - DB_TEST_HOST=${DB_TEST_HOST:-db_test}
+      - DB_TEST_NAME=${DB_TEST_NAME:-task_manager_test}
+      - APP_ENV=${APP_ENV:-development}
+      - API_KEY=${API_KEY:-task-manager-api-key-2025}
+      - API_KEYS=${API_KEYS:-dev-key-123,test-key-456,admin-key-789}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - TEST_API_BASE_URL=${TEST_API_BASE_URL:-http://app}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - REDIS_CACHE_DB=${REDIS_CACHE_DB:-1}
+      - CACHE_TYPE=${CACHE_TYPE:-redis}
+      - RATE_LIMIT_REQUESTS=${RATE_LIMIT_REQUESTS:-100}
+      - RATE_LIMIT_WINDOW=${RATE_LIMIT_WINDOW:-3600}
+      - LOG_PATH=${LOG_PATH:-/tmp/task-manager-logs}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRATION=${JWT_EXPIRATION:-3600}
       # Xdebug configuration
-      - XDEBUG_MODE=debug,develop
-      - XDEBUG_CONFIG=client_host=host.docker.internal client_port=9003
-      - PHP_IDE_CONFIG=serverName=task-manager-api
+      - XDEBUG_MODE=${XDEBUG_MODE:-debug,develop}
+      - XDEBUG_CONFIG=${XDEBUG_CONFIG:-client_host=host.docker.internal client_port=9003}
+      - PHP_IDE_CONFIG=${PHP_IDE_CONFIG:-serverName=task-manager-api}
 
 volumes:
   mysql_data:

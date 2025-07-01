@@ -7,6 +7,7 @@ use App\Container\DIContainer;
 use App\Config\AppConfig;
 use App\Context\RequestContext;
 use App\Services\JwtService;
+use App\Services\JwtServiceInterface;
 
 class DIContainerTest extends TestCase
 {
@@ -48,6 +49,14 @@ class DIContainerTest extends TestCase
     {
         $jwtService = $this->container->get(JwtService::class);
         
+        $this->assertInstanceOf(JwtService::class, $jwtService);
+    }
+
+    public function testContainerCanResolveJwtServiceInterface(): void
+    {
+        $jwtService = $this->container->get(JwtServiceInterface::class);
+        
+        $this->assertInstanceOf(JwtServiceInterface::class, $jwtService);
         $this->assertInstanceOf(JwtService::class, $jwtService);
     }
 

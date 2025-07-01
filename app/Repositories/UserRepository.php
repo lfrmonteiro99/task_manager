@@ -6,6 +6,7 @@ namespace App\Repositories;
 
 use App\Entities\User;
 use App\Models\Database;
+use App\Factories\UserFactory;
 use DateTime;
 use PDO;
 use PDOException;
@@ -146,14 +147,6 @@ class UserRepository
      */
     private function mapRowToUser(array $row): User
     {
-        $user = new User();
-        $user->setId((int)$row['id'])
-             ->setEmail($row['email'])
-             ->setPasswordHash($row['password_hash'])
-             ->setName($row['name'])
-             ->setCreatedAt(new DateTime($row['created_at']))
-             ->setUpdatedAt(new DateTime($row['updated_at']));
-
-        return $user;
+        return UserFactory::createFromDatabaseRow($row);
     }
 }

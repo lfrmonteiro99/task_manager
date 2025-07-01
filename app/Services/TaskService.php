@@ -9,6 +9,7 @@ use App\Factories\TaskFactory;
 use App\Entities\Task;
 use App\Cache\TaskCacheManager;
 use App\Services\PaginationService;
+use App\Services\PaginationServiceInterface;
 use App\Views\TaskView;
 use DateTime;
 use InvalidArgumentException;
@@ -19,7 +20,7 @@ class TaskService implements TaskServiceInterface
     public function __construct(
         private readonly TaskRepositoryInterface $taskRepository,
         private readonly TaskCacheManager $cache,
-        private readonly PaginationService $paginationService = new PaginationService(),
+        private readonly PaginationServiceInterface $paginationService = new PaginationService(),
         private readonly TaskView $taskView = new TaskView()
     ) {
     }

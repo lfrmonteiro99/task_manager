@@ -16,19 +16,14 @@ class DatabaseBench
 
     public function __construct()
     {
-        $this->database = new Database(
-            host: getenv('DB_HOST') ?: 'db',
-            dbname: getenv('DB_NAME') ?: 'task_manager',
-            username: getenv('DB_USER') ?: 'taskuser',
-            password: getenv('DB_PASS') ?: 'taskpass'
-        );
+        $this->database = new Database();
     }
 
     /**
      * Benchmark simple SELECT query performance
      */
-    #[Bench\Revs(100)]
-    #[Bench\Iterations(5)]
+    #[Bench\Revs(50)]
+    #[Bench\Iterations(3)]
     public function benchSimpleSelect(): void
     {
         $stmt = $this->database->getConnection()->prepare("SELECT COUNT(*) FROM tasks");
@@ -39,8 +34,8 @@ class DatabaseBench
     /**
      * Benchmark user tasks query performance (using view)
      */
-    #[Bench\Revs(50)]
-    #[Bench\Iterations(5)]
+    #[Bench\Revs(25)]
+    #[Bench\Iterations(3)]
     public function benchUserTasksView(): void
     {
         $stmt = $this->database->getConnection()->prepare(
@@ -53,8 +48,8 @@ class DatabaseBench
     /**
      * Benchmark statistics view performance
      */
-    #[Bench\Revs(30)]
-    #[Bench\Iterations(5)]
+    #[Bench\Revs(15)]
+    #[Bench\Iterations(3)]
     public function benchStatisticsView(): void
     {
         $stmt = $this->database->getConnection()->prepare(
@@ -67,8 +62,8 @@ class DatabaseBench
     /**
      * Benchmark connection pool performance
      */
-    #[Bench\Revs(200)]
-    #[Bench\Iterations(5)]
+    #[Bench\Revs(100)]
+    #[Bench\Iterations(3)]
     public function benchConnectionPool(): void
     {
         $connection = $this->database->getConnection();

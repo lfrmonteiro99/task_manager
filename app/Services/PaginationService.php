@@ -7,7 +7,7 @@ namespace App\Services;
 use JasonGrimes\Paginator;
 use InvalidArgumentException;
 
-class PaginationService
+class PaginationService implements PaginationServiceInterface
 {
     private const DEFAULT_PER_PAGE = 10;
     private const MAX_PER_PAGE = 100;

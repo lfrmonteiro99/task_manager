@@ -8,6 +8,7 @@ use App\Repositories\TaskRepository;
 use App\Cache\TaskCacheManager;
 use App\Cache\NullCache;
 use App\Services\TaskRetryService;
+use App\Services\TaskRetryServiceInterface;
 
 /**
  * Integration tests for task retry mechanisms
@@ -16,7 +17,7 @@ class TaskRetryIntegrationTest extends TestCase
 {
     private static TestDatabase $testDb;
     private TaskRepository $taskRepository;
-    private TaskRetryService $retryService;
+    private TaskRetryServiceInterface $retryService;
     private int $testUserId;
 
     public static function setUpBeforeClass(): void

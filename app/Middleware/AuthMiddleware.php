@@ -10,6 +10,7 @@ use App\Repositories\UserRepository;
 use App\Context\RequestContext;
 use App\Cache\UserDataCache;
 use App\Entities\User;
+use App\Factories\UserFactory;
 
 class AuthMiddleware
 {
@@ -96,15 +97,7 @@ class AuthMiddleware
         // Try cache first
         $cachedUserData = $this->userCache->getUser($userId);
         if ($cachedUserData !== null) {
-            // Reconstruct User entity from cached data
-            $user = new User();
-            $user->setId($cachedUserData['id']);
-            $user->setEmail($cachedUserData['email']);
-            $user->setName($cachedUserData['name']);
-            if ($cachedUserData['created_at']) {
-                $user->setCreatedAt(new \DateTime($cachedUserData['created_at']));
-            }
-            return $user;
+            return UserFactory::createFromCachedData($cachedUserData);
         }
 
         // Fall back to database

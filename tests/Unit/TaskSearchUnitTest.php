@@ -12,6 +12,7 @@ use App\Factories\TaskFactory;
 use App\Repositories\TaskRepositoryInterface;
 use App\Services\TaskService;
 use App\Services\PaginationService;
+use App\Services\PaginationServiceInterface;
 use App\Cache\TaskCacheManager;
 use App\Cache\NullCache;
 use App\Views\TaskView;
@@ -21,7 +22,7 @@ class TaskSearchUnitTest extends TestCase
 {
     private TaskRepositoryInterface|MockObject $mockRepository;
     private TaskCacheManager $cacheManager;
-    private PaginationService|MockObject $mockPaginationService;
+    private PaginationServiceInterface|MockObject $mockPaginationService;
     private TaskView|MockObject $mockTaskView;
     private TaskService $taskService;
     private int $testUserId = 1;
@@ -30,7 +31,7 @@ class TaskSearchUnitTest extends TestCase
     {
         $this->mockRepository = $this->createMock(TaskRepositoryInterface::class);
         $this->cacheManager = new TaskCacheManager(new NullCache());
-        $this->mockPaginationService = $this->createMock(PaginationService::class);
+        $this->mockPaginationService = $this->createMock(PaginationServiceInterface::class);
         $this->mockTaskView = $this->createMock(TaskView::class);
         
         // Set up TaskView mock to return formatted task data

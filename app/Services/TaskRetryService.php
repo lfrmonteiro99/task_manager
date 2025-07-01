@@ -12,7 +12,7 @@ use InvalidArgumentException;
 /**
  * Task-specific retry service with operation classification
  */
-class TaskRetryService
+class TaskRetryService implements TaskRetryServiceInterface
 {
     private RetryManager $databaseRetryManager;
     private RetryManager $cacheRetryManager;

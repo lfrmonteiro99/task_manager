@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 use App\Services\PaginationService;
+use App\Services\PaginationServiceInterface;
 
 class PaginationTest extends TestCase
 {
-    private PaginationService $paginationService;
+    private PaginationServiceInterface $paginationService;
 
     protected function setUp(): void
     {
