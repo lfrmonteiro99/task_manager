@@ -54,23 +54,20 @@ class Application
      */
     public function bootstrap(): void
     {
-        // Application is already bootstrapped in constructor
-        // This method can be used for additional setup if needed
+        // Register all application routes
+        $this->registerRoutes();
     }
 
     /**
      * Handle an HTTP request
      */
-    /**
-     * @param array<string, string> $headers
-     */
-    public function handleRequest(string $method, string $uri, array $headers = [], ?string $body = null): void
+    public function handleRequest(): void
     {
         try {
-            // Set request metadata
-            $this->requestContext->setMetadata('method', $method);
-            $this->requestContext->setMetadata('uri', $uri);
-            $this->requestContext->setMetadata('headers', $headers);
+            // Set request metadata from $_SERVER
+            $this->requestContext->setMetadata('method', $_SERVER['REQUEST_METHOD']);
+            $this->requestContext->setMetadata('uri', $_SERVER['REQUEST_URI']);
+            $this->requestContext->setMetadata('headers', $this->getAllHeaders());
 
             // Get router from container and handle request
             /** @var \App\Router $router */
@@ -136,6 +133,62 @@ class Application
         $exceptionHandler = $this->container->get(GlobalExceptionHandler::class);
         $this->exceptionHandler = $exceptionHandler;
         $this->exceptionHandler->register();
+    }
+
+    /**
+     * Get all HTTP headers in a compatible way
+     * @return array<string, string>
+     */
+    private function getAllHeaders(): array
+    {
+        if (function_exists('getallheaders')) {
+            return getallheaders() ?: [];
+        }
+
+        // Fallback for environments where getallheaders() is not available
+        $headers = [];
+        foreach ($_SERVER as $key => $value) {
+            if (strpos($key, 'HTTP_') === 0) {
+                $headerName = str_replace('_', '-', substr($key, 5));
+                $headers[$headerName] = $value;
+            }
+        }
+        return $headers;
+    }
+
+    /**
+     * Register all application routes
+     */
+    private function registerRoutes(): void
+    {
+        /** @var \App\Router $router */
+        $router = $this->container->get(\App\Router::class);
+        
+        // Get controllers from container
+        $taskController = $this->container->get(\App\Controllers\TaskController::class);
+        $authController = $this->container->get(\App\Controllers\AuthController::class);
+        $healthController = $this->container->get(\App\Controllers\HealthController::class);
+
+        // Authentication routes (no auth required)
+        $router->addRoute('POST', '/auth/register', [$authController, 'register']);
+        $router->addRoute('POST', '/auth/login', [$authController, 'login']);
+        $router->addRoute('POST', '/auth/refresh', [$authController, 'refresh']);
+        $router->addRoute('GET', '/auth/profile', [$authController, 'profile']);
+        $router->addRoute('GET', '/auth/debug', [$authController, 'debug']);
+
+        // Task routes (auth required)
+        $router->addRoute('POST', '/task/create', [$taskController, 'create']);
+        $router->addRoute('GET', '/task/list', [$taskController, 'list']);
+        $router->addRoute('PUT', '/task/{id}', [$taskController, 'update']);
+        $router->addRoute('POST', '/task/{id}/done', [$taskController, 'markdone']);
+        $router->addRoute('DELETE', '/task/{id}', [$taskController, 'delete']);
+        $router->addRoute('GET', '/task/overdue', [$taskController, 'overdue']);
+        $router->addRoute('GET', '/task/statistics', [$taskController, 'statistics']);
+        $router->addRoute('GET', '/task/{id}', [$taskController, 'show']);
+        
+        // Health check endpoint (no auth required)
+        $router->addRoute('GET', '/health', [$healthController, 'health']);
+        $router->addRoute('GET', '/debug/headers', [$healthController, 'debug']);
     }
 
     /**
