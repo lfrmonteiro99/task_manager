@@ -64,6 +64,9 @@ class Application
     public function handleRequest(): void
     {
         try {
+            // Record request start time for metrics
+            $this->requestContext->setMetadata('start_time', microtime(true));
+
             // Set request metadata from $_SERVER
             $this->requestContext->setMetadata('method', $_SERVER['REQUEST_METHOD']);
             $this->requestContext->setMetadata('uri', $_SERVER['REQUEST_URI']);
@@ -196,12 +199,105 @@ class Application
      */
     public function shutdown(): void
     {
-        // Clean up resources
-        RequestContext::reset();
+        try {
+            // Record request completion time
+            $startTime = $this->requestContext->getMetadata('start_time');
+            if ($startTime) {
+                $duration = (microtime(true) - $startTime) * 1000;
+                $this->requestContext->setMetadata('total_duration_ms', round($duration, 2));
+            }
 
-        // Log application shutdown if needed
-        if ($this->config->isDebug()) {
-            error_log("Application shutdown at " . date('Y-m-d H:i:s'));
+            // Log request completion metrics
+            if ($this->config->isDebug()) {
+                $method = $this->requestContext->getMetadata('method') ?? 'UNKNOWN';
+                $uri = $this->requestContext->getMetadata('uri') ?? 'UNKNOWN';
+                $duration = $this->requestContext->getMetadata('total_duration_ms') ?? 0;
+                
+                error_log(sprintf(
+                    "Request completed: %s %s (%.2fms) at %s",
+                    $method,
+                    $uri,
+                    $duration,
+                    date('Y-m-d H:i:s')
+                ));
+            }
+
+            // Clean up database connections
+            $this->cleanupDatabaseConnections();
+
+            // Clean up cache connections
+            $this->cleanupCacheConnections();
+
+            // Clear request context
+            RequestContext::reset();
+
+            // Reset singleton instance for testing environments
+            if ($this->config->get('app.env') === 'test') {
+                self::$instance = null;
+            }
+
+        } catch (Exception $e) {
+            // Don't let shutdown errors break the response
+            if ($this->config->isDebug()) {
+                error_log("Shutdown error: " . $e->getMessage());
+            }
+        }
+    }
+
+    /**
+     * Clean up database connections
+     */
+    private function cleanupDatabaseConnections(): void
+    {
+        try {
+            // Get database instance if it exists in container
+            if ($this->container->has(\App\Models\Database::class)) {
+                /** @var \App\Models\Database $database */
+                $database = $this->container->get(\App\Models\Database::class);
+                // Database connections will be closed by PDO destructor
+                // No explicit close method needed
+                
+                if ($this->config->isDebug()) {
+                    error_log("Database connection will be closed by destructor");
+                }
+            }
+        } catch (Exception $e) {
+            if ($this->config->isDebug()) {
+                error_log("Database cleanup error: " . $e->getMessage());
+            }
+        }
+    }
+
+    /**
+     * Clean up cache connections
+     */
+    private function cleanupCacheConnections(): void
+    {
+        try {
+            // Clean up Redis connections if they exist
+            if ($this->container->has(\App\Cache\RedisCache::class)) {
+                /** @var \App\Cache\RedisCache $redisCache */
+                $redisCache = $this->container->get(\App\Cache\RedisCache::class);
+                // Redis client will be automatically closed by destructor
+                // No explicit disconnect method available
+            }
+
+            // Record cache metrics before cleanup
+            if ($this->container->has(\App\Cache\TaskCacheManager::class)) {
+                /** @var \App\Cache\TaskCacheManager $cacheManager */
+                $cacheManager = $this->container->get(\App\Cache\TaskCacheManager::class);
+                
+                if ($this->config->isDebug()) {
+                    $metrics = $cacheManager->getCacheMetrics();
+                    if (!empty($metrics)) {
+                        error_log("Cache metrics: " . json_encode($metrics));
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            if ($this->config->isDebug()) {
+                error_log("Cache cleanup error: " . $e->getMessage());
+            }
         }
     }
 }
